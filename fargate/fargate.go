@@ -10,7 +10,6 @@ import (
 // reference https://www.pulumi.com/docs/guides/crosswalk/aws/ecs/#creating-an-ecs-cluster-in-a-vpc
 func FargateRun(ctx *pulumi.Context, vpcId, prefixName string) error {
 
-	// id := "vpc-948b7cfd"
 	vpc, err := ec2.LookupVpc(ctx, &ec2.LookupVpcArgs{Id: &vpcId})
 	if err != nil {
 		return err
@@ -38,11 +37,11 @@ func FargateRun(ctx *pulumi.Context, vpcId, prefixName string) error {
 	if err != nil {
 		return err
 	}
-	cluster, err := ecs.NewCluster(ctx, prefixName+"cluster", nil)
+	cluster, err := ecs.NewCluster(ctx, prefixName+"-cluster", nil)
 	if err != nil {
 		return err
 	}
-	_, err = awsxecs.NewFargateService(ctx, prefixName+"service", &awsxecs.FargateServiceArgs{
+	_, err = awsxecs.NewFargateService(ctx, prefixName+"-service", &awsxecs.FargateServiceArgs{
 		Cluster: cluster.Arn,
 		NetworkConfiguration: &ecs.ServiceNetworkConfigurationArgs{
 			Subnets: toPulumiStringArray(subnet.Ids),
