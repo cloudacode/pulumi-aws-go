@@ -7,7 +7,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// reference https://www.pulumi.com/docs/guides/crosswalk/aws/ecs/#creating-an-ecs-cluster-in-a-vpc
+// https://www.pulumi.com/docs/guides/crosswalk/aws/ecs/#creating-an-ecs-cluster-in-a-vpc
 func FargateRun(ctx *pulumi.Context, vpcId, prefixName string) error {
 
 	vpc, err := ec2.LookupVpc(ctx, &ec2.LookupVpcArgs{Id: &vpcId})
@@ -20,7 +20,6 @@ func FargateRun(ctx *pulumi.Context, vpcId, prefixName string) error {
 			Values: []string{vpcId},
 		},
 	}})
-	// subnet, err := ec2.GetSubnetIds(ctx, &ec2.GetSubnetIdsArgs{VpcId: vpc.Id})
 	if err != nil {
 		return err
 	}
