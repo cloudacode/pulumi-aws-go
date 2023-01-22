@@ -14,12 +14,27 @@ func FargateRun(ctx *pulumi.Context, vpcId, prefixName string) error {
 	if err != nil {
 		return err
 	}
-	subnet, err := ec2.GetSubnetIds(ctx, &ec2.GetSubnetIdsArgs{VpcId: vpc.Id})
+	subnet, err := ec2.GetSubnets(ctx, &ec2.GetSubnetsArgs{Filters: []ec2.GetSubnetsFilter{
+		{
+			Name:   "vpc-id",
+			Values: []string{vpcId},
+		},
+	}})
+	// subnet, err := ec2.GetSubnetIds(ctx, &ec2.GetSubnetIdsArgs{VpcId: vpc.Id})
 	if err != nil {
 		return err
 	}
 	securityGroup, err := ec2.NewSecurityGroup(ctx, prefixName+"-sg", &ec2.SecurityGroupArgs{
 		VpcId: pulumi.String(vpc.Id),
+		Ingress: ec2.SecurityGroupIngressArray{
+			ec2.SecurityGroupIngressArgs{
+				Protocol: pulumi.String("tcp"),
+				FromPort: pulumi.Int(80),
+				ToPort:   pulumi.Int(80),
+				CidrBlocks: pulumi.StringArray{
+					pulumi.String("0.0.0.0/0")},
+			},
+		},
 		Egress: ec2.SecurityGroupEgressArray{
 			&ec2.SecurityGroupEgressArgs{
 				FromPort: pulumi.Int(0),
@@ -27,9 +42,6 @@ func FargateRun(ctx *pulumi.Context, vpcId, prefixName string) error {
 				Protocol: pulumi.String("-1"),
 				CidrBlocks: pulumi.StringArray{
 					pulumi.String("0.0.0.0/0"),
-				},
-				Ipv6CidrBlocks: pulumi.StringArray{
-					pulumi.String("::/0"),
 				},
 			},
 		},
@@ -44,12 +56,13 @@ func FargateRun(ctx *pulumi.Context, vpcId, prefixName string) error {
 	_, err = awsxecs.NewFargateService(ctx, prefixName+"-service", &awsxecs.FargateServiceArgs{
 		Cluster: cluster.Arn,
 		NetworkConfiguration: &ecs.ServiceNetworkConfigurationArgs{
-			Subnets: toPulumiStringArray(subnet.Ids),
+			AssignPublicIp: pulumi.Bool(true),
+			Subnets:        toPulumiStringArray(subnet.Ids),
 			SecurityGroups: pulumi.StringArray{
 				securityGroup.ID(),
 			},
 		},
-		DesiredCount: pulumi.Int(2),
+		DesiredCount: pulumi.Int(1),
 		TaskDefinitionArgs: &awsxecs.FargateServiceTaskDefinitionArgs{
 			Container: &awsxecs.TaskDefinitionContainerDefinitionArgs{
 				Image:     pulumi.String("nginx:latest"),
