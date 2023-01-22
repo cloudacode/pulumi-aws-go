@@ -15,6 +15,7 @@ func VpcRunIpam(ctx *pulumi.Context, prefixName, ipamID, ipamPoolId string) erro
 	_, err = ec2.NewVpc(ctx, prefixName+"-vpc", &ec2.VpcArgs{
 		Ipv4IpamPoolId:    testVpcIpamPool.ID(),
 		Ipv4NetmaskLength: pulumi.Int(28),
+		Tags:              pulumi.StringMap{"Name": pulumi.String(prefixName + "-vpc")},
 	})
 	if err != nil {
 		return err
