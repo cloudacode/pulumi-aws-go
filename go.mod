@@ -1,11 +1,11 @@
-module github.com/cloudacode/pulumi-aws-go/fargate
+module github.com/cloudacode/pulumi-aws-go
 
 go 1.19
 
 require (
-	github.com/pulumi/pulumi-aws/sdk/v5 v5.27.0
+	github.com/pulumi/pulumi-aws/sdk/v5 v5.28.0
 	github.com/pulumi/pulumi-awsx/sdk v1.0.1
-	github.com/pulumi/pulumi/sdk/v3 v3.52.1
+	github.com/pulumi/pulumi/sdk/v3 v3.53.1
 )
 
 require (
@@ -39,7 +39,7 @@ require (
 	github.com/opentracing/opentracing-go v1.1.0 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/pkg/term v1.1.0 // indirect
-	github.com/pulumi/pulumi-docker/sdk/v3 v3.6.1 // indirect
+	github.com/pulumi/pulumi-docker/sdk/v3 v3.2.0 // indirect
 	github.com/rivo/uniseg v0.2.0 // indirect
 	github.com/rogpeppe/go-internal v1.8.1 // indirect
 	github.com/sabhiram/go-gitignore v0.0.0-20180611051255-d3107576ba94 // indirect
