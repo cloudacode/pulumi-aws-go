@@ -6,59 +6,40 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-func VpcRunIpam(ctx *pulumi.Context, prefixName, ipamID, ipamPoolId string, netMaskLength int) error {
+// A collection of values returned by FargateRun.
+type GetVPCRunResult struct {
+	VPCId   pulumi.StringOutput
+	VPCCidr pulumi.StringOutput
+}
 
-	// Lookup existing IPAM Pool. https://www.pulumi.com/registry/packages/aws/api-docs/ec2/vpcipampool/
-	testVpcIpamPool, err := ec2.GetVpcIpamPool(ctx, ipamID, pulumi.ID(ipamPoolId), &ec2.VpcIpamPoolState{
-		AddressFamily: pulumi.String("ipv4"),
-	})
-	if err != nil {
-		return err
-	}
-	// Create a VPC with CIDR from AWS IPAM
-	testVpc, err := ec2.NewVpc(ctx, prefixName+"-vpc", &ec2.VpcArgs{
-		Ipv4IpamPoolId:    testVpcIpamPool.ID(),
-		Ipv4NetmaskLength: pulumi.Int(netMaskLength),
-		Tags:              pulumi.StringMap{"Name": pulumi.String(prefixName + "-vpc")},
-	})
-	if err != nil {
-		return err
-	}
-	ctx.Export("VPC CIDR: ", testVpc.CidrBlock)
+// New VPC resource with the given unique name, ipam id, ipam-pool id, and netmask length for new VPC.
+// https://www.pulumi.com/docs/guides/crosswalk/aws/vpc
+func VpcRunIpam(ctx *pulumi.Context, prefixName, ipamID, ipamPoolId string, netMaskLength int) (*GetVPCRunResult, error) {
 
-	// nextCidr, err := ec2.NewVpcIpamPreviewNextCidr(ctx, "exampleVpcIpamPreviewNextCidr", &ec2.VpcIpamPreviewNextCidrArgs{
-	// 	IpamPoolId:    testVpcIpamPool.ID(),
-	// 	NetmaskLength: pulumi.Int(netMaskLength),
-	// 	DisallowedCidrs: pulumi.StringArray{
-	// 		pulumi.String("10.0.0.0/18"),
-	// 	},
-	// }, nil)
-	// if err != nil {
-	// 	return err
-	// }
-	// ctx.Export("Next CIDR: ", nextCidr.Cidr)
+	var rv GetVPCRunResult
 
+	// Lookup next available CIDR range from being returned by the pool
 	previewNextCidr, err := ec2.GetIpamPreviewNextCidr(ctx, &ec2.GetIpamPreviewNextCidrArgs{
-		IpamPoolId:      ipamPoolId,
-		NetmaskLength:   pulumi.IntRef(18),
-		DisallowedCidrs: []string{"10.0.0.0/18"},
+		IpamPoolId:    ipamPoolId,
+		NetmaskLength: pulumi.IntRef(netMaskLength),
+		// TODO: Add a feature to exclude a particular CIDR range
+		// DisallowedCidrs: []string{"10.0.0.0/18"},
 	}, nil)
-
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	ctx.Export("preview CIDR: ", pulumi.StringPtr(previewNextCidr.Cidr))
-
-	newVpc, err := awsxec2.NewVpc(ctx, prefixName+"-vpc", &awsxec2.VpcArgs{
+	// Create a new VPC with CIDR block from AWS IPAM
+	newVpc, err := awsxec2.NewVpc(ctx, prefixName, &awsxec2.VpcArgs{
 		CidrBlock: &previewNextCidr.Cidr,
 	})
-
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	ctx.Export("newVPC CIDR: ", newVpc.Vpc.CidrBlock())
+	// Return values
+	rv.VPCId = newVpc.VpcId
+	rv.VPCCidr = pulumi.StringOutput(newVpc.Vpc.CidrBlock())
 
-	return nil
+	return &rv, nil
 }
