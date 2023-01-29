@@ -41,48 +41,14 @@ To automate VPC provisioning via IPAM, you need to:
 1. Use the [`aws.VpcRunIpam`](https://pkg.go.dev/github.com/cloudacode/pulumi-aws-go/aws#VpcRunIpam) function to provision VPC resource
 2. Set the arguments as [`ctx *pulumi.Context, prefixName, ipamID, ipamPoolId, netMaskLength`](https://github.com/cloudacode/pulumi-aws-go/blob/main/aws/vpc.go#L9) on the function.
 
-```go
-package main
-
-import (
-	"github.com/cloudacode/pulumi-aws-go/aws"
-	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-)
-
-func main() {
-	pulumi.Run(func(ctx *pulumi.Context) error {
-		err := aws.VpcRunIpam(ctx, "test", "ipam-01f9c4c97064eb14b", "ipam-pool-08ecf378574aa542e", 18)
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-}
-```
+Please check some examples in the [getting started vpc](./vpc.md).
 
 ### ECS Fargete Deployment
 
 To deploy ECS Fargate via Pulumi, you need to:
 1. Use the [`aws.FargateRun`](https://pkg.go.dev/github.com/cloudacode/pulumi-aws-go/aws#FargateRun) function to deploy ECS Fargate resource
-2. Set the arguments as [`ctx *pulumi.Context, vpcId, prefixName string`](https://github.com/cloudacode/pulumi-aws-go/blob/main/aws/fargate.go#L11) on the function.
+2. Set the arguments as [`ctx *pulumi.Context, vpcId, prefixName, imageUrl string, containerPort int`](https://github.com/cloudacode/pulumi-aws-go/blob/main/aws/fargate.go#L11) on the function.
 
-```go
-package main
-
-import (
-	"github.com/cloudacode/pulumi-aws-go/aws"
-	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
-)
-
-func main() {
-	pulumi.Run(func(ctx *pulumi.Context) error {
-		err := aws.FargateRun(ctx, "vpc-948b7cfd", "test")
-		if err != nil {
-			return err
-		}
-		return nil
-	})
-}
-```
+Please check some examples in the [getting started fargate](./fargate.md).
 
 🌟🌟 Enjoy!!!
