@@ -25,9 +25,12 @@ pulumi login
 
 ### Import Package
 
-First, you can to use `go get` to fetch the package through git tag version. The git tags are available in [release page](https://github.com/cloudacode/pulumi-aws-go/releases). Take `v0.4.0` as an example:
+First, you can to use `go get` to fetch the `latest` package or any git tag version. The git tags are available in [release page](https://github.com/cloudacode/pulumi-aws-go/releases). Take `v0.4.0` as an example:
 
 ```bash
+# fetch the latest version
+go get github.com/cloudacode/pulumi-aws-go
+# or explicit target version
 go get github.com/cloudacode/pulumi-aws-go@v0.4.0
 ```
 
