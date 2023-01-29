@@ -6,7 +6,7 @@ import (
 	"github.com/pulumi/pulumi/sdk/v3/go/pulumi"
 )
 
-// A collection of values returned by FargateRun.
+// A collection of values returned by VpcRunIPAM.
 type GetVPCRunResult struct {
 	VPCId   pulumi.StringOutput
 	VPCCidr pulumi.StringOutput
